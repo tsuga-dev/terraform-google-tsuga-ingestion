@@ -97,7 +97,7 @@ processors:
     timeout: 5s
 
 exporters:
-  otlphttp:
+  otlp_http:
     endpoint: ${tsuga_intake_url}
     headers:
       Authorization: Bearer $${env:TSUGA_API_KEY}
@@ -120,13 +120,13 @@ service:
     logs:
       receivers: [googlecloudpubsub]
       processors: [resourcedetection, batch]
-      exporters: [otlphttp]
+      exporters: [otlp_http]
 %{ endif ~}
 %{ if enable_metrics ~}
     metrics:
       receivers: [googlecloudmonitoring]
       processors: [resourcedetection, batch]
-      exporters: [otlphttp]
+      exporters: [otlp_http]
 %{ endif ~}
   telemetry:
     logs:
