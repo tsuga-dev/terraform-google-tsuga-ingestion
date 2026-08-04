@@ -1,0 +1,16 @@
+formatter: markdown table
+
+sections:
+  hide:
+    - resources
+    - data-sources
+
+settings:
+  # Report the version constraint from required_providers, not whatever `terraform init` happened to
+  # resolve. Without this the generated output changes as soon as a .terraform.lock.hcl exists.
+  lockfile: false
+  hide-empty: true
+
+output:
+  file: README.md
+  mode: inject
