@@ -15,9 +15,15 @@ This module deploys two OTel collectors on Google Cloud Run to collect logs and/
 
 ## Usage
 
-Use the module from your own Terraform code and pin it to a published module version:
+This module does not configure the google provider; declare it in your root module and the
+module inherits it.
 
 ```hcl
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
 module "tsuga_ingestion" {
   source  = "tsuga-dev/tsuga-ingestion/google"
   version = "<version>"
@@ -32,11 +38,9 @@ module "tsuga_ingestion" {
 }
 ```
 
-You can configure the module to collect:
-
-- **Logs only** - Set `enable_logs = true` and `enable_metrics = false`
-- **Metrics only** - Set `enable_logs = false` and `enable_metrics = true`
-- **Both logs and metrics** - Set `enable_logs = true` and `enable_metrics = true` (default)
+At least one of `enable_logs` or `enable_metrics` must be `true`. Every input is documented
+below; see the [Tsuga documentation](https://app.tsuga.com/documentation/integrations/gcp/gcp-services-through-opentelemetry)
+for the deployment walkthrough and worked examples.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -59,6 +63,7 @@ You can configure the module to collect:
 | <a name="input_collection_interval"></a> [collection\_interval](#input\_collection\_interval) | How often to pull metrics from Cloud Monitoring (e.g., 60s). | `string` | `"300s"` | no |
 | <a name="input_enable_logs"></a> [enable\_logs](#input\_enable\_logs) | Enable log collection from GCP to Tsuga. | `bool` | `true` | no |
 | <a name="input_enable_metrics"></a> [enable\_metrics](#input\_enable\_metrics) | Enable metrics collection from GCP to Tsuga. | `bool` | `true` | no |
+| <a name="input_log_filter"></a> [log\_filter](#input\_log\_filter) | Inclusion filter for the log sink, written in the Logging query language (https://cloud.google.com/logging/docs/routing/overview#inclusion-filters). Defaults to null, which routes every log entry in the project to Tsuga. | `string` | `null` | no |
 | <a name="input_logs_max_instances"></a> [logs\_max\_instances](#input\_logs\_max\_instances) | Maximum number of logs collector instances. The metrics service always runs as a single instance regardless of this setting. | `number` | `10` | no |
 | <a name="input_logs_min_instances"></a> [logs\_min\_instances](#input\_logs\_min\_instances) | Minimum number of logs collector instances to keep warm. | `number` | `1` | no |
 | <a name="input_otel_service_account_email"></a> [otel\_service\_account\_email](#input\_otel\_service\_account\_email) | Existing service account for the metrics-collecting Cloud Run service. If not set, one will be created automatically. | `string` | `null` | no |
