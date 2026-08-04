@@ -56,6 +56,12 @@ variable "logs_max_instances" {
   nullable    = true
 }
 
+variable "log_filter" {
+  description = "Inclusion filter for the log sink, written in the Logging query language (https://cloud.google.com/logging/docs/routing/overview#inclusion-filters). Defaults to null, which routes every log entry in the project to Tsuga."
+  type        = string
+  default     = null
+}
+
 variable "otel_service_account_email" {
   description = "Existing service account for the metrics-collecting Cloud Run service. If not set, one will be created automatically."
   type        = string

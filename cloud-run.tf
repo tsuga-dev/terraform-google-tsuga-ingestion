@@ -9,6 +9,7 @@ locals {
 
 resource "google_cloud_run_v2_service" "otel_logs" {
   count               = var.enable_logs ? 1 : 0
+  project             = var.project_id
   name                = "${var.prefix}-otel-logs"
   location            = var.region
   deletion_protection = false
@@ -95,6 +96,7 @@ resource "google_cloud_run_v2_service" "otel_logs" {
 
 resource "google_cloud_run_v2_service" "otel_metrics" {
   count               = var.enable_metrics ? 1 : 0
+  project             = var.project_id
   name                = "${var.prefix}-otel-metrics"
   location            = var.region
   deletion_protection = false

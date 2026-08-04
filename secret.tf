@@ -1,4 +1,5 @@
 resource "google_secret_manager_secret" "tsuga_secret" {
+  project   = var.project_id
   secret_id = "${var.prefix}-api-key"
 
   replication {
@@ -25,6 +26,7 @@ resource "google_secret_manager_secret_iam_member" "secret_access" {
 
 resource "google_secret_manager_secret" "otel_config_logs" {
   count     = var.enable_logs ? 1 : 0
+  project   = var.project_id
   secret_id = "${var.prefix}-otel-config-logs"
 
   replication {
@@ -53,6 +55,7 @@ resource "google_secret_manager_secret_iam_member" "otel_config_logs_access" {
 
 resource "google_secret_manager_secret" "otel_config_metrics" {
   count     = var.enable_metrics ? 1 : 0
+  project   = var.project_id
   secret_id = "${var.prefix}-otel-config-metrics"
 
   replication {

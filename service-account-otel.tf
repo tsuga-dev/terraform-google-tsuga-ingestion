@@ -1,5 +1,6 @@
 resource "google_service_account" "otel" {
   count        = var.otel_service_account_email != null ? 0 : 1
+  project      = var.project_id
   account_id   = "${var.prefix}-otel"
   display_name = "OTel Collector for GCP telemetry"
 }
