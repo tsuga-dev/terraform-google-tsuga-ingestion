@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-08-04
+
 ### Added
 
 - Added the `log_filter` variable to set an [inclusion filter](https://cloud.google.com/logging/docs/routing/overview#inclusion-filters) on the log sink, so you can route a subset of your GCP logs to Tsuga instead of all of them. Defaults to `null`, which routes everything as before.
