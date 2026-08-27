@@ -76,7 +76,7 @@ variable "pubsub_ack_deadline_seconds" {
 
 
 variable "vpc_access" {
-  description = "Route the collectors' outbound traffic through your own VPC, so Tsuga sees a single egress IP (your Cloud NAT). Set either `network`/`subnetwork` for direct VPC egress, or `connector` for an existing Serverless VPC Access connector. Egress defaults to ALL_TRAFFIC, which is what sends the Tsuga intake calls through your VPC. Leave null to keep the default Cloud Run egress."
+  description = "Route the collectors' outbound traffic through your own VPC, so whatever receives the telemetry sees it all arriving from a single egress IP (your Cloud NAT) instead of Google's rotating Cloud Run pool - useful for the Tsuga intake, and equally for an OTel gateway or any receiver behind an IP allowlist. Set either `network`/`subnetwork` for direct VPC egress, or `connector` for an existing Serverless VPC Access connector. Egress defaults to ALL_TRAFFIC, which is what sends the export calls through your VPC. Leave null to keep the default Cloud Run egress."
   type = object({
     network    = optional(string)
     subnetwork = optional(string)
