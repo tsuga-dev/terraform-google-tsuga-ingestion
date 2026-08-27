@@ -42,6 +42,25 @@ At least one of `enable_logs` or `enable_metrics` must be `true`. Every input is
 below; see the [Tsuga documentation](https://app.tsuga.com/documentation/integrations/gcp/gcp-services-through-opentelemetry)
 for the deployment walkthrough and worked examples.
 
+### Sending traffic from your own IP
+
+Cloud Run egresses from a Google-owned IP pool by default. Set `vpc_access` to route the
+collectors through your VPC instead, so Tsuga (and any allowlist in front of it) sees the
+single static IP of your Cloud NAT:
+
+```hcl
+vpc_access = {
+  network    = "my-vpc"
+  subnetwork = "my-subnet"   # /26 or larger, in the same region as the collectors
+  tags       = ["tsuga-collector"]
+}
+```
+
+The subnet needs a Cloud Router and Cloud NAT with a reserved static IP; the module does not
+create them. Use `connector = "<connector-id>"` instead of `network`/`subnetwork` if you
+already run a Serverless VPC Access connector. `egress` defaults to `ALL_TRAFFIC` so the
+intake calls actually leave through your VPC.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -73,6 +92,7 @@ for the deployment walkthrough and worked examples.
 | <a name="input_region"></a> [region](#input\_region) | GCP region for Cloud Run. | `string` | n/a | yes |
 | <a name="input_tsuga_api_key"></a> [tsuga\_api\_key](#input\_tsuga\_api\_key) | Tsuga API Key for integration. | `string` | n/a | yes |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
+| <a name="input_vpc_access"></a> [vpc\_access](#input\_vpc\_access) | Route the collectors' outbound traffic through your own VPC, so Tsuga sees a single egress IP (your Cloud NAT). Set either `network`/`subnetwork` for direct VPC egress, or `connector` for an existing Serverless VPC Access connector. Egress defaults to ALL\_TRAFFIC, which is what sends the Tsuga intake calls through your VPC. Leave null to keep the default Cloud Run egress. | <pre>object({<br>    network    = optional(string)<br>    subnetwork = optional(string)<br>    tags       = optional(list(string))<br>    connector  = optional(string)<br>    egress     = optional(string, "ALL_TRAFFIC")<br>  })</pre> | `null` | no |
 
 ## Outputs
 

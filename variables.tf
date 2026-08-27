@@ -74,3 +74,20 @@ variable "pubsub_ack_deadline_seconds" {
   default     = 120
 }
 
+
+variable "vpc_access" {
+  description = "Route the collectors' outbound traffic through your own VPC, so Tsuga sees a single egress IP (your Cloud NAT). Set either `network`/`subnetwork` for direct VPC egress, or `connector` for an existing Serverless VPC Access connector. Egress defaults to ALL_TRAFFIC, which is what sends the Tsuga intake calls through your VPC. Leave null to keep the default Cloud Run egress."
+  type = object({
+    network    = optional(string)
+    subnetwork = optional(string)
+    tags       = optional(list(string))
+    connector  = optional(string)
+    egress     = optional(string, "ALL_TRAFFIC")
+  })
+  default = null
+
+  validation {
+    condition     = var.vpc_access == null ? true : (var.vpc_access.connector != null) != (var.vpc_access.network != null || var.vpc_access.subnetwork != null)
+    error_message = "Set either vpc_access.connector (existing Serverless VPC Access connector) or vpc_access.network/subnetwork (direct VPC egress), not both."
+  }
+}

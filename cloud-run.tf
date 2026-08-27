@@ -26,6 +26,23 @@ resource "google_cloud_run_v2_service" "otel_logs" {
       max_instance_count = var.logs_max_instances
     }
 
+    dynamic "vpc_access" {
+      for_each = var.vpc_access == null ? [] : [var.vpc_access]
+      content {
+        connector = vpc_access.value.connector
+        egress    = vpc_access.value.egress
+
+        dynamic "network_interfaces" {
+          for_each = vpc_access.value.connector == null ? [1] : []
+          content {
+            network    = vpc_access.value.network
+            subnetwork = vpc_access.value.subnetwork
+            tags       = vpc_access.value.tags
+          }
+        }
+      }
+    }
+
     containers {
       image = local.otel_collector_image
       args  = ["--config=file:/etc/otel/config.yaml"]
@@ -112,6 +129,23 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
     scaling {
       min_instance_count = 1
       max_instance_count = 1
+    }
+
+    dynamic "vpc_access" {
+      for_each = var.vpc_access == null ? [] : [var.vpc_access]
+      content {
+        connector = vpc_access.value.connector
+        egress    = vpc_access.value.egress
+
+        dynamic "network_interfaces" {
+          for_each = vpc_access.value.connector == null ? [1] : []
+          content {
+            network    = vpc_access.value.network
+            subnetwork = vpc_access.value.subnetwork
+            tags       = vpc_access.value.tags
+          }
+        }
+      }
     }
 
     containers {
