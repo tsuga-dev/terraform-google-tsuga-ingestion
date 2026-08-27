@@ -48,13 +48,13 @@ for the deployment walkthrough and worked examples.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.6 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | ~> 6.47 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | >= 6.47.0, < 8.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | ~> 6.47 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 6.47.0, < 8.0.0 |
 
 ## Inputs
 
