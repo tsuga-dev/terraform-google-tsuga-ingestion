@@ -1,0 +1,24 @@
+cloud-run.tf
+  s_846f297e41a6fc::t_f092d3d60641ad 29-45,134-149
+  s_846f297e41a6fc::t_4586085122aaf0 150
+README.md
+  s_846f297e41a6fc::t_ce634204cc7ab3 45-63,95
+variables.tf
+  s_846f297e41a6fc::t_3fe0348f4f9cb0 77-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "7ce226fe77c7a766dc86f972ca63ce38b1116d19",
+  "prompts": {},
+  "sessions": {
+    "s_846f297e41a6fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a2f07422-b8d7-4be1-9dfe-aa9331953388",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Nicolas Narbais <nicolas.narbais@gmail.com>"
+    }
+  }
+}
