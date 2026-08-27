@@ -74,3 +74,9 @@ variable "pubsub_ack_deadline_seconds" {
   default     = 120
 }
 
+
+variable "resource_attributes" {
+  description = "Extra resource attributes to add to every log and metric sent to Tsuga (e.g., { \"deployment.environment\" = \"prod\" })."
+  type        = map(string)
+  default     = {}
+}

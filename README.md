@@ -71,6 +71,7 @@ for the deployment walkthrough and worked examples.
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | GCP project ID where the collector runs. | `string` | n/a | yes |
 | <a name="input_pubsub_ack_deadline_seconds"></a> [pubsub\_ack\_deadline\_seconds](#input\_pubsub\_ack\_deadline\_seconds) | Pub/Sub acknowledgement deadline in seconds. Must be between 10 and 600. | `number` | `120` | no |
 | <a name="input_region"></a> [region](#input\_region) | GCP region for Cloud Run. | `string` | n/a | yes |
+| <a name="input_resource_attributes"></a> [resource\_attributes](#input\_resource\_attributes) | Extra resource attributes to add to every log and metric sent to Tsuga (e.g., { "deployment.environment" = "prod" }). | `map(string)` | `{}` | no |
 | <a name="input_tsuga_api_key"></a> [tsuga\_api\_key](#input\_tsuga\_api\_key) | Tsuga API Key for integration. | `string` | n/a | yes |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
 
