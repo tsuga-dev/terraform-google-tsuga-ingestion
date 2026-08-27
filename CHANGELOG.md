@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.8] - 2026-08-27
+
+### Changed
+
+- Widened the `hashicorp/google` provider constraint from `~> 6.47` to `>= 6.47.0, < 8.0.0` so the module works with provider v7, not just v6.
+
 ## [2.0.7] - 2026-08-04
 
 ### Added
