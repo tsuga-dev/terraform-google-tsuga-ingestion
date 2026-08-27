@@ -1,0 +1,25 @@
+templates/otel-config.yaml.tmpl
+  s_846f297e41a6fc::t_e398253d3aedaf 94-102,131,137
+README.md
+  s_846f297e41a6fc::t_4773dff5f3eccb 74
+variables.tf
+  s_846f297e41a6fc::t_e398253d3aedaf 77-82
+main.tf
+  s_846f297e41a6fc::t_e398253d3aedaf 11,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e453abed1f82e949f961a12220585dc7552eb68a",
+  "prompts": {},
+  "sessions": {
+    "s_846f297e41a6fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a2f07422-b8d7-4be1-9dfe-aa9331953388",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Nicolas Narbais <nicolas.narbais@gmail.com>"
+    }
+  }
+}
