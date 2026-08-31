@@ -1,0 +1,57 @@
+name: Release
+on:
+  push:
+    branches: [main]
+    tags: [v*]
+
+concurrency:
+  group: release-${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Tag latest changelog release
+        run: |
+          version=$(awk '/^## \[[0-9]+\.[0-9]+\.[0-9]+\]/ {match($0, /[0-9]+\.[0-9]+\.[0-9]+/); print substr($0, RSTART, RLENGTH); exit}' CHANGELOG.md)
+          test -n "$version"
+          git show-ref --tags --verify --quiet "refs/tags/v$version" && exit 0
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag -a "v$version" -m "Release v$version"
+          git push origin "v$version"
+
+  release:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+
+      - uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # pin@v2
+        continue-on-error: true
+        env:
+          SLACK_USERNAME: GitHub CI Bot
+          SLACK_COLOR: good
+          MSG_MINIMAL: actions url
+          SLACK_TITLE: "Terraform Google Tsuga Ingestion Released"
+          SLACK_MESSAGE: "A new release has been published: ${{ github.ref_name }}"
+          SLACK_FOOTER: "https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
