@@ -74,3 +74,9 @@ variable "pubsub_ack_deadline_seconds" {
   default     = 120
 }
 
+variable "resource_attributes" {
+  description = "Stable resource attributes for grouping exported telemetry, such as `service.namespace`, `business.unit`, or `data.classification`."
+  type        = map(string)
+  default     = {}
+  nullable    = false
+}

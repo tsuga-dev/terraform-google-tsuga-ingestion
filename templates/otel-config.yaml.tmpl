@@ -91,6 +91,15 @@ receivers:
 %{ endif ~}
 
 processors:
+%{ if length(resource_attributes) > 0 ~}
+  resource:
+    attributes:
+%{ for key, value in resource_attributes ~}
+      - key: ${jsonencode(key)}
+        value: ${jsonencode(value)}
+        action: upsert
+%{ endfor ~}
+%{ endif ~}
   resourcedetection:
     detectors: [env, gcp]
   batch:
@@ -119,16 +128,22 @@ service:
 %{ if enable_logs ~}
     logs:
       receivers: [googlecloudpubsub]
-      processors: [resourcedetection, batch]
+      processors: [resourcedetection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
       exporters: [otlp_http]
 %{ endif ~}
 %{ if enable_metrics ~}
     metrics:
       receivers: [googlecloudmonitoring]
-      processors: [resourcedetection, batch]
+      processors: [resourcedetection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
       exporters: [otlp_http]
 %{ endif ~}
   telemetry:
+%{ if length(resource_attributes) > 0 ~}
+    resource:
+%{ for key, value in resource_attributes ~}
+      ${jsonencode(key)}: ${jsonencode(value)}
+%{ endfor ~}
+%{ endif ~}
     logs:
       level: debug
       encoding: json
