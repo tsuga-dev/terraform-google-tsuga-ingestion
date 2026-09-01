@@ -8,6 +8,7 @@ locals {
       tsuga_intake_url    = var.tsuga_intake_url
       enable_logs         = true
       enable_metrics      = false
+      resource_attributes = var.resource_attributes
     }
   ) : null
 
@@ -20,6 +21,7 @@ locals {
       tsuga_intake_url    = var.tsuga_intake_url
       enable_logs         = false
       enable_metrics      = true
+      resource_attributes = var.resource_attributes
     }
   ) : null
 }
