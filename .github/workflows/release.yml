@@ -54,4 +54,4 @@ jobs:
           SLACK_TITLE: "Terraform Google Tsuga Ingestion Released"
           SLACK_MESSAGE: "A new release has been published: ${{ github.ref_name }}"
           SLACK_FOOTER: "https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
