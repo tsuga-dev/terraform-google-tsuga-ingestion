@@ -1,4 +1,20 @@
+locals {
+  manage_api_key_secret   = var.tsuga_api_key_secret_id == null
+  tsuga_api_key_secret_id = local.manage_api_key_secret ? google_secret_manager_secret.tsuga_secret[0].id : var.tsuga_api_key_secret_id
+}
+
+moved {
+  from = google_secret_manager_secret.tsuga_secret
+  to   = google_secret_manager_secret.tsuga_secret[0]
+}
+
+moved {
+  from = google_secret_manager_secret_version.secret_version
+  to   = google_secret_manager_secret_version.secret_version[0]
+}
+
 resource "google_secret_manager_secret" "tsuga_secret" {
+  count     = local.manage_api_key_secret ? 1 : 0
   project   = var.project_id
   secret_id = "${var.prefix}-api-key"
 
@@ -14,12 +30,14 @@ resource "google_secret_manager_secret" "tsuga_secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
-  secret      = google_secret_manager_secret.tsuga_secret.id
-  secret_data = var.tsuga_api_key
+  count                  = local.manage_api_key_secret ? 1 : 0
+  secret                 = google_secret_manager_secret.tsuga_secret[0].id
+  secret_data_wo         = var.tsuga_api_key
+  secret_data_wo_version = var.tsuga_api_key_version
 }
 
 resource "google_secret_manager_secret_iam_member" "secret_access" {
-  secret_id = google_secret_manager_secret.tsuga_secret.id
+  secret_id = local.tsuga_api_key_secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${local.otel_service_account_email}"
 }
