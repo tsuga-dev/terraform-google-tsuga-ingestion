@@ -8,7 +8,7 @@ This module deploys two OTel collectors on Google Cloud Run to collect logs and/
 ## Prerequisites
 
 - Download `gcloud` CLI.
-- Download `terraform` CLI.
+- Download `terraform` CLI (>= 1.11).
 - Perform `gcloud auth login` before performing terraform commands.
 - Tsuga API Key.
 - Tsuga Intake URL.
@@ -42,12 +42,31 @@ At least one of `enable_logs` or `enable_metrics` must be `true`. Every input is
 below; see the [Tsuga documentation](https://app.tsuga.com/documentation/integrations/gcp/gcp-services-through-opentelemetry)
 for the deployment walkthrough and worked examples.
 
+### Tsuga ingestion key handling
+
+There are two ways to pass your Tsuga ingestion key to this module.
+
+Method 1: If you prefer the key never to pass through this module at all, create the secret yourself
+and pass a reference to it instead of the key:
+
+```hcl
+  tsuga_api_key_secret_id = "projects/your-project/secrets/tsuga-api-key"
+```
+
+The module then only grants its collector service account access to that secret; creating
+the secret and rotating its value stay on your side. See `examples/existing-secret`.
+
+Method 2: You can also simply pass your ingestion key to this module through a
+[write-only argument](https://developer.hashicorp.com/terraform/language/resources/ephemeral/write-only). It won't appear in the Terraform state or plan files. If you choose this method, because Terraform cannot diff a
+write-only value, rotation must be done explicitly: set the new key in `tsuga_api_key` and increment
+`tsuga_api_key_version`.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.6 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11 |
 | <a name="requirement_google"></a> [google](#requirement\_google) | >= 6.47.0, < 8.0.0 |
 
 ## Providers
@@ -72,7 +91,9 @@ for the deployment walkthrough and worked examples.
 | <a name="input_pubsub_ack_deadline_seconds"></a> [pubsub\_ack\_deadline\_seconds](#input\_pubsub\_ack\_deadline\_seconds) | Pub/Sub acknowledgement deadline in seconds. Must be between 10 and 600. | `number` | `120` | no |
 | <a name="input_region"></a> [region](#input\_region) | GCP region for Cloud Run. | `string` | n/a | yes |
 | <a name="input_resource_attributes"></a> [resource\_attributes](#input\_resource\_attributes) | Stable resource attributes for grouping exported telemetry, such as `service.namespace`, `business.unit`, or `data.classification`. | `map(string)` | `{}` | no |
-| <a name="input_tsuga_api_key"></a> [tsuga\_api\_key](#input\_tsuga\_api\_key) | Tsuga API Key for integration. | `string` | n/a | yes |
+| <a name="input_tsuga_api_key"></a> [tsuga\_api\_key](#input\_tsuga\_api\_key) | Tsuga API Key for integration. Written to Secret Manager through a write-only argument, so it never appears in the Terraform state or plan. When rotating it, also increment `tsuga_api_key_version`. Mutually exclusive with `tsuga_api_key_secret_id`. | `string` | `null` | no |
+| <a name="input_tsuga_api_key_secret_id"></a> [tsuga\_api\_key\_secret\_id](#input\_tsuga\_api\_key\_secret\_id) | ID of an existing Secret Manager secret holding the Tsuga API key, in the form `projects/<project>/secrets/<secret-id>`. When set, the key never passes through Terraform: the module manages neither the secret nor its versions, and only grants the collector service account access to it. Mutually exclusive with `tsuga_api_key`. | `string` | `null` | no |
+| <a name="input_tsuga_api_key_version"></a> [tsuga\_api\_key\_version](#input\_tsuga\_api\_key\_version) | Increment this whenever `tsuga_api_key` changes. Terraform cannot diff the write-only key value, so this number is what triggers writing a new secret version. | `number` | `1` | no |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
 
 ## Outputs
@@ -90,4 +111,10 @@ See the `examples/` folder.
 
 ## Security
 
-Note that for convenience, the Tsuga API key is passed in Terraform state: you can mitigate this by encrypting the Terraform state.
+The Tsuga API key is not stored in the Terraform state or plan files: it is either written to
+Secret Manager through a write-only argument (`tsuga_api_key`) or never passes through Terraform
+at all (`tsuga_api_key_secret_id`).
+
+State files written by module versions before v3.0.0 (including backups) contain the API key in
+plaintext. If you upgraded from such a version, rotate the key afterwards: set the new value in
+`tsuga_api_key` and increment `tsuga_api_key_version`.

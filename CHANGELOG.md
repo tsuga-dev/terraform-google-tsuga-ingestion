@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-09-04
+
+The Tsuga API key is no longer stored in the Terraform state or plan files.
+
+### Changed
+
+- **Breaking:** the module now requires Terraform >= 1.11.
+- **Breaking:** `tsuga_api_key` is now optional and declared `ephemeral`; exactly one of `tsuga_api_key` or `tsuga_api_key_secret_id` must be set. The key is written to Secret Manager through the `secret_data_wo` write-only argument, so Terraform never persists it. Because write-only values cannot be diffed, rotating the key now requires incrementing `tsuga_api_key_version` alongside the new value.
+- Upgrading from 2.x replaces the Secret Manager secret version once (the write-only argument cannot be reconciled with the previously stored value). State files written by 2.x, including backups, still contain the key in plaintext: you should probably rotate the API key after upgrading.
+
+### Added
+
+- `tsuga_api_key_secret_id` to point the module at an existing Secret Manager secret instead of having it manage one. The key then never passes through Terraform; the module only grants the collector service account access. See `examples/existing-secret`.
+- `tsuga_api_key_version`, incremented to write a new secret version when rotating `tsuga_api_key`.
+
 ## [2.0.9] - 2026-09-01
 
 ### Added

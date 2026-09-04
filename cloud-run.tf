@@ -34,7 +34,7 @@ resource "google_cloud_run_v2_service" "otel_logs" {
         name = "TSUGA_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.tsuga_secret.name
+            secret  = local.tsuga_api_key_secret_id
             version = "latest"
           }
         }
@@ -122,7 +122,7 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
         name = "TSUGA_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.tsuga_secret.name
+            secret  = local.tsuga_api_key_secret_id
             version = "latest"
           }
         }

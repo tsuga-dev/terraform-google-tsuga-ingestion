@@ -18,6 +18,7 @@ variable "tsuga_api_key" {
   description = "Tsuga API Key for integration"
   type        = string
   sensitive   = true
+  ephemeral   = true
 }
 
 variable "tsuga_intake_url" {

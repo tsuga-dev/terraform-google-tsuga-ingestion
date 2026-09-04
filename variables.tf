@@ -26,9 +26,33 @@ variable "tsuga_intake_url" {
 }
 
 variable "tsuga_api_key" {
-  description = "Tsuga API Key for integration."
+  description = "Tsuga API Key for integration. Written to Secret Manager through a write-only argument, so it never appears in the Terraform state or plan. When rotating it, also increment `tsuga_api_key_version`. Mutually exclusive with `tsuga_api_key_secret_id`."
   type        = string
+  default     = null
   sensitive   = true
+  ephemeral   = true
+}
+
+variable "tsuga_api_key_version" {
+  description = "Increment this whenever `tsuga_api_key` changes. Terraform cannot diff the write-only key value, so this number is what triggers writing a new secret version."
+  type        = number
+  default     = 1
+}
+
+variable "tsuga_api_key_secret_id" {
+  description = "ID of an existing Secret Manager secret holding the Tsuga API key, in the form `projects/<project>/secrets/<secret-id>`. When set, the key never passes through Terraform: the module manages neither the secret nor its versions, and only grants the collector service account access to it. Mutually exclusive with `tsuga_api_key`."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = (var.tsuga_api_key == null) != (var.tsuga_api_key_secret_id == null)
+    error_message = "Set exactly one of tsuga_api_key or tsuga_api_key_secret_id."
+  }
+
+  validation {
+    condition     = var.tsuga_api_key_secret_id == null || can(regex("^projects/[^/]+/secrets/[^/]+$", var.tsuga_api_key_secret_id))
+    error_message = "tsuga_api_key_secret_id must have the form projects/<project>/secrets/<secret-id>."
+  }
 }
 
 variable "enable_logs" {

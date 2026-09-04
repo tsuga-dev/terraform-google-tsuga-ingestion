@@ -1,0 +1,5 @@
+project_id              = "your-gcp-project-id"
+region                  = "us-central1"
+prefix                  = "tsuga"
+tsuga_api_key_secret_id = "projects/your-gcp-project-id/secrets/tsuga-api-key"
+tsuga_intake_url        = "https://intake.tsuga.io/api/v1/otlp"

@@ -14,27 +14,12 @@ variable "prefix" {
   default     = "tsuga"
 }
 
-variable "tsuga_api_key" {
-  description = "Tsuga API Key for integration"
+variable "tsuga_api_key_secret_id" {
+  description = "Existing Secret Manager secret holding the Tsuga API key (projects/<project>/secrets/<secret-id>). Create it with: printf '%s' \"$API_KEY\" | gcloud secrets create tsuga-api-key --data-file=-"
   type        = string
-  sensitive   = true
-  ephemeral   = true
 }
 
 variable "tsuga_intake_url" {
   description = "Tsuga OTLP/HTTP ingestion endpoint"
   type        = string
 }
-
-variable "logs_min_instances" {
-  description = "Minimum number of logs collector instances"
-  type        = number
-  default     = 1
-}
-
-variable "logs_max_instances" {
-  description = "Maximum number of logs collector instances. null means no limit."
-  type        = number
-  default     = 10
-}
-
