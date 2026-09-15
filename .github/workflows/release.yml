@@ -40,10 +40,26 @@ jobs:
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin@v4
+
       - uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
+
+      - name: Extract release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          DELIM="EOF_$(openssl rand -hex 16)"
+          {
+            echo "RELEASE_NOTES<<$DELIM"
+            awk -v ver="$VERSION" '
+              /^## \[/ { if (found) exit; if (index($0, "[" ver "]")) { found = 1; next } }
+              found { print }
+            ' CHANGELOG.md | sed -e '/./,$!d' | head -c 2500
+            echo
+            echo "$DELIM"
+          } >> "$GITHUB_ENV"
 
       - uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # pin@v2
         continue-on-error: true
@@ -52,6 +68,9 @@ jobs:
           SLACK_COLOR: good
           MSG_MINIMAL: actions url
           SLACK_TITLE: "Terraform Google Tsuga Ingestion Released"
-          SLACK_MESSAGE: "A new release has been published: ${{ github.ref_name }}"
+          SLACK_MESSAGE: |
+            A new release has been published: ${{ github.ref_name }}
+
+            ${{ env.RELEASE_NOTES }}
           SLACK_FOOTER: "https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
