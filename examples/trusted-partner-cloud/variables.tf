@@ -27,6 +27,16 @@ variable "tsuga_intake_url" {
 }
 
 variable "universe_domain" {
-  description = "Domain of the Trusted Partner Cloud universe, e.g. s3nsapis.fr for Cloud de Confiance by S3NS"
+  description = "Domain of the Trusted Partner Cloud universe, e.g. myuniverse.example"
+  type        = string
+}
+
+variable "vpc_network" {
+  description = "VPC network the collectors attach to"
+  type        = string
+}
+
+variable "vpc_subnetwork" {
+  description = "Subnetwork (in the Cloud Run region) for the collectors' Direct VPC egress"
   type        = string
 }

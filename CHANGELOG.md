@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Secret Manager secrets use automatic replication when `universe_domain` is set, instead of a
+  user-managed replica in `region`. Trusted Partner Cloud universes are single-region and reject
+  user-managed replication, so the module could not be applied there at all. Unset, the
+  replication policy is unchanged, which matters because it cannot be altered after a secret is
+  created.
+- Changing a value that feeds the generated collector config — `tsuga_intake_url`,
+  `collection_interval`, `resource_attributes` — now rolls the Cloud Run services.
+  The config is a Secret Manager volume pinned to `latest`, so a new secret version alone left
+  the running revisions serving the previous config indefinitely. The rendered config's SHA-256
+  is now a template annotation, which makes the revision turn over with it.
+
+### Changed
+
+- `vpc_access` is now required when `universe_domain` is set, and its `egress` must be
+  `ALL_TRAFFIC`. Trusted Partner Cloud universes have no default serverless egress. Both are
+  enforced by variable validation so they fail at plan time rather than as a Cloud Run API 400.
+- With `universe_domain` set, the Cloud Run services pin
+  `execution_environment = "EXECUTION_ENVIRONMENT_GEN2"`. Direct VPC egress forces Gen2 there and
+  the API returns it, which the module would otherwise plan to remove on every run.
+- The documented example universe domain is now `myuniverse.example`. The `3.1.0` entry below
+  is left as released.
+
+### Fixed
+
+- The Cloud Run secret reference now uses the secret's `name` (project-number form) rather than
+  its `id` (project-ID form). On domain-scoped project IDs such as `universe:my-project`, the
+  colon made Cloud Run reject the `secret_key_ref`. This matches what the config volumes did.
+
 ## [3.1.0] - 2026-09-16
 
 ### Added

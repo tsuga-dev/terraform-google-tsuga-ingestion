@@ -7,4 +7,9 @@ module "tsuga_trusted_partner_cloud" {
   tsuga_intake_url = var.tsuga_intake_url
 
   universe_domain = var.universe_domain
+
+  vpc_access = {
+    network    = var.vpc_network
+    subnetwork = var.vpc_subnetwork
+  }
 }

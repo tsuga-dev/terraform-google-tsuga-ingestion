@@ -95,33 +95,37 @@ See `examples/vpc-egress`.
 
 ### Trusted Partner Cloud universes
 
-Deploying into a Trusted Partner Cloud universe — [Cloud de Confiance by S3NS](https://documentation.s3ns.fr/docs/overview/tpc-overview),
-for instance — takes two settings that must agree:
+Deploying into a Trusted Partner Cloud universe takes two settings that must agree:
 
 ```hcl
 provider "google" {
   project         = var.project_id
   region          = var.region
-  universe_domain = "s3nsapis.fr"
+  universe_domain = "myuniverse.example"
 }
 
 module "tsuga_ingestion" {
   # ...
-  universe_domain = "s3nsapis.fr"
+  universe_domain = "myuniverse.example"
 }
 ```
 
 The provider setting governs the resources Terraform creates. The module variable is written
 into the generated collector config, so the collectors' own Pub/Sub and Cloud Monitoring
-clients resolve `pubsub.s3nsapis.fr` and `monitoring.s3nsapis.fr` instead of the
+clients resolve `pubsub.myuniverse.example` and `monitoring.myuniverse.example` instead of the
 `googleapis.com` defaults.
 
 Nothing else in the module needs adapting: API service names are the same across universes,
-[only the endpoint FQDNs differ](https://documentation.s3ns.fr/docs/overview/tpc-key-differences).
+only the endpoint FQDNs differ.
 
 If the upstream collector image is not reachable from your universe, mirror it to a registry
 that is and point `otel_collector_image` at the copy. It must be `0.155.0` or later —
 `universe_domain` was added to both receivers in that release.
+
+`vpc_access` is required in these universes — there is no default serverless egress — and its
+`egress` must stay `ALL_TRAFFIC`. The module validates both, so a missing or misconfigured
+`vpc_access` fails at plan time. The subnetwork needs a route out for the collectors to reach
+the Tsuga intake, typically Cloud NAT.
 
 See `examples/trusted-partner-cloud`.
 
@@ -160,7 +164,7 @@ See `examples/trusted-partner-cloud`.
 | <a name="input_tsuga_api_key_secret_id"></a> [tsuga\_api\_key\_secret\_id](#input\_tsuga\_api\_key\_secret\_id) | ID of an existing Secret Manager secret holding the Tsuga API key, in the form `projects/<project>/secrets/<secret-id>`. When set, the key never passes through Terraform: the module manages neither the secret nor its versions, and only grants the collector service account access to it. Mutually exclusive with `tsuga_api_key`. | `string` | `null` | no |
 | <a name="input_tsuga_api_key_version"></a> [tsuga\_api\_key\_version](#input\_tsuga\_api\_key\_version) | Increment this whenever `tsuga_api_key` changes. Terraform cannot diff the write-only key value, so this number is what triggers writing a new secret version. | `number` | `1` | no |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
-| <a name="input_universe_domain"></a> [universe\_domain](#input\_universe\_domain) | Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments such as Cloud de Confiance by S3NS (`s3nsapis.fr`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe. | `string` | `null` | no |
+| <a name="input_universe_domain"></a> [universe\_domain](#input\_universe\_domain) | Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments (`myuniverse.example`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe. | `string` | `null` | no |
 | <a name="input_vpc_access"></a> [vpc\_access](#input\_vpc\_access) | Routes the collectors' egress through a VPC with Direct VPC egress. Set `network` and/or `subnetwork` (at least one). If you set only `network`, Cloud Run will assume the value of `subnetwork` to be the same. If you set only `subnetwork`, Cloud Run will look up which VPC owns that subnet. `egress` defaults to ALL\_TRAFFIC so all outbound traffic is subject to the VPC's routes and firewall rules; PRIVATE\_RANGES\_ONLY sends only RFC 1918 traffic through the VPC. `tags` applies network tags to the instances for firewall targeting. Defaults to null: the default serverless egress, not routed through any VPC. | <pre>object({<br/>    network    = optional(string)<br/>    subnetwork = optional(string)<br/>    tags       = optional(list(string))<br/>    egress     = optional(string, "ALL_TRAFFIC")<br/>  })</pre> | `null` | no |
 
 ## Outputs

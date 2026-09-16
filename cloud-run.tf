@@ -15,7 +15,12 @@ resource "google_cloud_run_v2_service" "otel_logs" {
   scaling {}
 
   template {
-    service_account = local.otel_service_account_email
+    service_account       = local.otel_service_account_email
+    execution_environment = var.universe_domain == null ? null : "EXECUTION_ENVIRONMENT_GEN2"
+
+    annotations = {
+      "tsuga.com/config-sha256" = sha256(local.otel_config_logs_rendered)
+    }
 
     scaling {
       min_instance_count = var.logs_min_instances
@@ -114,7 +119,12 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
   scaling {}
 
   template {
-    service_account = local.otel_service_account_email
+    service_account       = local.otel_service_account_email
+    execution_environment = var.universe_domain == null ? null : "EXECUTION_ENVIRONMENT_GEN2"
+
+    annotations = {
+      "tsuga.com/config-sha256" = sha256(local.otel_config_metrics_rendered)
+    }
 
     # Exactly one instance to prevent duplicate metric collection.
     scaling {
