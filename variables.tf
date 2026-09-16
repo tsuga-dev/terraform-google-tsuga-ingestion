@@ -132,16 +132,26 @@ variable "vpc_access" {
     condition     = var.vpc_access == null ? true : contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.vpc_access.egress)
     error_message = "vpc_access.egress must be \"ALL_TRAFFIC\" or \"PRIVATE_RANGES_ONLY\"."
   }
+
+  validation {
+    condition     = var.universe_domain == null || var.vpc_access != null
+    error_message = "vpc_access is required when universe_domain is set: Trusted Partner Cloud universes have no default serverless egress, so Cloud Run rejects a service without it."
+  }
+
+  validation {
+    condition     = var.universe_domain == null || var.vpc_access == null || var.vpc_access.egress == "ALL_TRAFFIC"
+    error_message = "vpc_access.egress must be \"ALL_TRAFFIC\" when universe_domain is set: Trusted Partner Cloud universes reject PRIVATE_RANGES_ONLY for Direct VPC egress."
+  }
 }
 
 variable "universe_domain" {
-  description = "Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments such as Cloud de Confiance by S3NS (`s3nsapis.fr`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe."
+  description = "Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments (`myuniverse.example`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe."
   type        = string
   default     = null
 
   validation {
     condition     = var.universe_domain == null ? true : can(regex("^[a-z0-9.-]+\\.[a-z]{2,}$", var.universe_domain))
-    error_message = "universe_domain must be a bare domain such as s3nsapis.fr, without a scheme or trailing slash."
+    error_message = "universe_domain must be a bare domain such as myuniverse.example, without a scheme or trailing slash."
   }
 }
 

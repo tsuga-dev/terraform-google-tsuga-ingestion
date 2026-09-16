@@ -1,6 +1,8 @@
 locals {
+  automatic_replication = var.universe_domain != null
+
   manage_api_key_secret   = var.tsuga_api_key_secret_id == null
-  tsuga_api_key_secret_id = local.manage_api_key_secret ? google_secret_manager_secret.tsuga_secret[0].id : var.tsuga_api_key_secret_id
+  tsuga_api_key_secret_id = local.manage_api_key_secret ? google_secret_manager_secret.tsuga_secret[0].name : var.tsuga_api_key_secret_id
 }
 
 moved {
@@ -19,9 +21,17 @@ resource "google_secret_manager_secret" "tsuga_secret" {
   secret_id = "${var.prefix}-api-key"
 
   replication {
-    user_managed {
-      replicas {
-        location = var.region
+    dynamic "auto" {
+      for_each = local.automatic_replication ? [1] : []
+      content {}
+    }
+
+    dynamic "user_managed" {
+      for_each = local.automatic_replication ? [] : [1]
+      content {
+        replicas {
+          location = var.region
+        }
       }
     }
   }
@@ -48,9 +58,17 @@ resource "google_secret_manager_secret" "otel_config_logs" {
   secret_id = "${var.prefix}-otel-config-logs"
 
   replication {
-    user_managed {
-      replicas {
-        location = var.region
+    dynamic "auto" {
+      for_each = local.automatic_replication ? [1] : []
+      content {}
+    }
+
+    dynamic "user_managed" {
+      for_each = local.automatic_replication ? [] : [1]
+      content {
+        replicas {
+          location = var.region
+        }
       }
     }
   }
@@ -77,9 +95,17 @@ resource "google_secret_manager_secret" "otel_config_metrics" {
   secret_id = "${var.prefix}-otel-config-metrics"
 
   replication {
-    user_managed {
-      replicas {
-        location = var.region
+    dynamic "auto" {
+      for_each = local.automatic_replication ? [1] : []
+      content {}
+    }
+
+    dynamic "user_managed" {
+      for_each = local.automatic_replication ? [] : [1]
+      content {
+        replicas {
+          location = var.region
+        }
       }
     }
   }
