@@ -15,7 +15,8 @@ resource "google_cloud_run_v2_service" "otel_logs" {
   scaling {}
 
   template {
-    service_account = local.otel_service_account_email
+    service_account       = local.otel_service_account_email
+    execution_environment = var.universe_domain == null ? null : "EXECUTION_ENVIRONMENT_GEN2"
 
     scaling {
       min_instance_count = var.logs_min_instances
@@ -114,7 +115,8 @@ resource "google_cloud_run_v2_service" "otel_metrics" {
   scaling {}
 
   template {
-    service_account = local.otel_service_account_email
+    service_account       = local.otel_service_account_email
+    execution_environment = var.universe_domain == null ? null : "EXECUTION_ENVIRONMENT_GEN2"
 
     # Exactly one instance to prevent duplicate metric collection.
     scaling {

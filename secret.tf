@@ -1,6 +1,6 @@
 locals {
   manage_api_key_secret   = var.tsuga_api_key_secret_id == null
-  tsuga_api_key_secret_id = local.manage_api_key_secret ? google_secret_manager_secret.tsuga_secret[0].id : var.tsuga_api_key_secret_id
+  tsuga_api_key_secret_id = local.manage_api_key_secret ? google_secret_manager_secret.tsuga_secret[0].name : var.tsuga_api_key_secret_id
 }
 
 moved {

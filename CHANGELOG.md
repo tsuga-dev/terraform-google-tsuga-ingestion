@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `vpc_access` is now required when `universe_domain` is set, and its `egress` must be
+  `ALL_TRAFFIC`. Trusted Partner Cloud universes have no default serverless egress. Both are
+  enforced by variable validation so they fail at plan time rather than as a Cloud Run API 400.
+- With `universe_domain` set, the Cloud Run services pin
+  `execution_environment = "EXECUTION_ENVIRONMENT_GEN2"`. Direct VPC egress forces Gen2 there and
+  the API returns it, which the module would otherwise plan to remove on every run.
+- The documented example universe domain is now `myuniverse.example`. The `3.1.0` entry below
+  is left as released.
+
+### Fixed
+
+- The Cloud Run secret reference now uses the secret's `name` (project-number form) rather than
+  its `id` (project-ID form). On domain-scoped project IDs such as `universe:my-project`, the
+  colon made Cloud Run reject the `secret_key_ref`. This matches what the config volumes did.
+
 ## [3.1.0] - 2026-09-16
 
 ### Added
