@@ -9,6 +9,7 @@ locals {
       enable_logs         = true
       enable_metrics      = false
       resource_attributes = var.resource_attributes
+      universe_domain     = var.universe_domain == null ? "" : var.universe_domain
     }
   ) : null
 
@@ -22,6 +23,7 @@ locals {
       enable_logs         = false
       enable_metrics      = true
       resource_attributes = var.resource_attributes
+      universe_domain     = var.universe_domain == null ? "" : var.universe_domain
     }
   ) : null
 }

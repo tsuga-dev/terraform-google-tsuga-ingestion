@@ -13,11 +13,17 @@ receivers:
     subscription: ${subscription}
     encoding: google_cloud_logentry_encoding
     ignore_encoding_error: true
+%{ if universe_domain != "" ~}
+    universe_domain: ${universe_domain}
+%{ endif ~}
 %{ endif ~}
 %{ if enable_metrics ~}
   googlecloudmonitoring:
     project_id: ${project_id}
     collection_interval: ${collection_interval}
+%{ if universe_domain != "" ~}
+    universe_domain: ${universe_domain}
+%{ endif ~}
     metrics_list:
       # Compute
       - metric_descriptor_filter: 'metric.type = starts_with("compute.googleapis.com/")'

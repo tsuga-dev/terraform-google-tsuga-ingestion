@@ -1,7 +1,3 @@
-data "google_project" "project" {
-  project_id = var.project_id
-}
-
 resource "google_pubsub_topic" "logs_topic" {
   count   = var.enable_logs ? 1 : 0
   project = var.project_id
@@ -29,5 +25,5 @@ resource "google_pubsub_topic_iam_member" "logs_sa_publishing_permissions" {
 
   topic  = google_pubsub_topic.logs_topic[0].name
   role   = "roles/pubsub.publisher"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-logging.iam.gserviceaccount.com"
+  member = google_logging_project_sink.logs_sink[0].writer_identity
 }

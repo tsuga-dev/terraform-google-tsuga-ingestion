@@ -93,6 +93,38 @@ Two things to keep in mind:
 
 See `examples/vpc-egress`.
 
+### Trusted Partner Cloud universes
+
+Deploying into a Trusted Partner Cloud universe — [Cloud de Confiance by S3NS](https://documentation.s3ns.fr/docs/overview/tpc-overview),
+for instance — takes two settings that must agree:
+
+```hcl
+provider "google" {
+  project         = var.project_id
+  region          = var.region
+  universe_domain = "s3nsapis.fr"
+}
+
+module "tsuga_ingestion" {
+  # ...
+  universe_domain = "s3nsapis.fr"
+}
+```
+
+The provider setting governs the resources Terraform creates. The module variable is written
+into the generated collector config, so the collectors' own Pub/Sub and Cloud Monitoring
+clients resolve `pubsub.s3nsapis.fr` and `monitoring.s3nsapis.fr` instead of the
+`googleapis.com` defaults.
+
+Nothing else in the module needs adapting: API service names are the same across universes,
+[only the endpoint FQDNs differ](https://documentation.s3ns.fr/docs/overview/tpc-key-differences).
+
+If the upstream collector image is not reachable from your universe, mirror it to a registry
+that is and point `otel_collector_image` at the copy. It must be `0.155.0` or later —
+`universe_domain` was added to both receivers in that release.
+
+See `examples/trusted-partner-cloud`.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -117,6 +149,7 @@ See `examples/vpc-egress`.
 | <a name="input_log_filter"></a> [log\_filter](#input\_log\_filter) | Inclusion filter for the log sink, written in the Logging query language (https://cloud.google.com/logging/docs/routing/overview#inclusion-filters). Defaults to null, which routes every log entry in the project to Tsuga. | `string` | `null` | no |
 | <a name="input_logs_max_instances"></a> [logs\_max\_instances](#input\_logs\_max\_instances) | Maximum number of logs collector instances. The metrics service always runs as a single instance regardless of this setting. | `number` | `10` | no |
 | <a name="input_logs_min_instances"></a> [logs\_min\_instances](#input\_logs\_min\_instances) | Minimum number of logs collector instances to keep warm. | `number` | `1` | no |
+| <a name="input_otel_collector_image"></a> [otel\_collector\_image](#input\_otel\_collector\_image) | Container image for the OTel collectors. Override to pull from a registry reachable from your universe. Must be 0.155.0 or later when `universe_domain` is set. | `string` | `"otel/opentelemetry-collector-contrib:0.161.0"` | no |
 | <a name="input_otel_service_account_email"></a> [otel\_service\_account\_email](#input\_otel\_service\_account\_email) | Existing service account for the metrics-collecting Cloud Run service. If not set, one will be created automatically. | `string` | `null` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Base name for Cloud Run services and Secrets. | `string` | `"tsuga"` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | GCP project ID where the collector runs. | `string` | n/a | yes |
@@ -127,6 +160,7 @@ See `examples/vpc-egress`.
 | <a name="input_tsuga_api_key_secret_id"></a> [tsuga\_api\_key\_secret\_id](#input\_tsuga\_api\_key\_secret\_id) | ID of an existing Secret Manager secret holding the Tsuga API key, in the form `projects/<project>/secrets/<secret-id>`. When set, the key never passes through Terraform: the module manages neither the secret nor its versions, and only grants the collector service account access to it. Mutually exclusive with `tsuga_api_key`. | `string` | `null` | no |
 | <a name="input_tsuga_api_key_version"></a> [tsuga\_api\_key\_version](#input\_tsuga\_api\_key\_version) | Increment this whenever `tsuga_api_key` changes. Terraform cannot diff the write-only key value, so this number is what triggers writing a new secret version. | `number` | `1` | no |
 | <a name="input_tsuga_intake_url"></a> [tsuga\_intake\_url](#input\_tsuga\_intake\_url) | TSUGA OTLP/HTTP ingestion endpoint. | `string` | n/a | yes |
+| <a name="input_universe_domain"></a> [universe\_domain](#input\_universe\_domain) | Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments such as Cloud de Confiance by S3NS (`s3nsapis.fr`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe. | `string` | `null` | no |
 | <a name="input_vpc_access"></a> [vpc\_access](#input\_vpc\_access) | Routes the collectors' egress through a VPC with Direct VPC egress. Set `network` and/or `subnetwork` (at least one). If you set only `network`, Cloud Run will assume the value of `subnetwork` to be the same. If you set only `subnetwork`, Cloud Run will look up which VPC owns that subnet. `egress` defaults to ALL\_TRAFFIC so all outbound traffic is subject to the VPC's routes and firewall rules; PRIVATE\_RANGES\_ONLY sends only RFC 1918 traffic through the VPC. `tags` applies network tags to the instances for firewall targeting. Defaults to null: the default serverless egress, not routed through any VPC. | <pre>object({<br/>    network    = optional(string)<br/>    subnetwork = optional(string)<br/>    tags       = optional(list(string))<br/>    egress     = optional(string, "ALL_TRAFFIC")<br/>  })</pre> | `null` | no |
 
 ## Outputs
