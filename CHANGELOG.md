@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgraded the OTel collector image from `0.150.1` to `0.161.0`. Two upstream behaviour
+  changes come with it: `googlecloudmonitoring` now marks CUMULATIVE metrics from Cloud
+  Monitoring as monotonic on conversion ([#49804](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/49804)),
+  and `google_cloud_logentry_encoding` no longer emits the deprecated `rpc.jsonrpc.error_code`
+  and `rpc.jsonrpc.error_message` attributes ([#22095](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/22095)).
+- Renamed the `resourcedetection` processor to `resource_detection` in the generated collector
+  config, following its upstream rename in `0.153.0` ([#48525](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/48525)).
+
 ## [3.0.1] - 2026-09-07
 
 ### Added
