@@ -100,7 +100,7 @@ processors:
         action: upsert
 %{ endfor ~}
 %{ endif ~}
-  resourcedetection:
+  resource_detection:
     detectors: [env, gcp]
   batch:
     timeout: 5s
@@ -128,13 +128,13 @@ service:
 %{ if enable_logs ~}
     logs:
       receivers: [googlecloudpubsub]
-      processors: [resourcedetection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
+      processors: [resource_detection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
       exporters: [otlp_http]
 %{ endif ~}
 %{ if enable_metrics ~}
     metrics:
       receivers: [googlecloudmonitoring]
-      processors: [resourcedetection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
+      processors: [resource_detection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
       exporters: [otlp_http]
 %{ endif ~}
   telemetry:
