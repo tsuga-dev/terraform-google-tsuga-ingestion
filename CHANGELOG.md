@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `universe_domain` to run the collectors against a Trusted Partner Cloud universe such as
+  Cloud de Confiance by S3NS (`s3nsapis.fr`). It is written into the generated collector
+  config, so the Pub/Sub and Cloud Monitoring clients resolve `pubsub.<universe-domain>` and
+  `monitoring.<universe-domain>` instead of the `googleapis.com` defaults. Set the matching
+  `universe_domain` on the google provider in your root module. Unset, behaviour is
+  unchanged. See `examples/trusted-partner-cloud`.
+- `otel_collector_image` to override the collector image, for universes where the upstream
+  image must be mirrored to a reachable registry. Must be `0.155.0` or later when
+  `universe_domain` is set.
+
+### Fixed
+
+- The log sink's Pub/Sub publisher binding now uses the sink's own `writer_identity` instead
+  of a hand-built `service-<project-number>@gcp-sa-logging.iam.gserviceaccount.com` address.
+  Service agent emails are not spelled that way outside the public `googleapis.com` universe.
+  No behaviour change on stock GCP, where the two resolve to the same principal.
+
+## [3.0.2] - 2026-09-16
+
 ### Changed
 
 - Upgraded the OTel collector image from `0.150.1` to `0.161.0`. Two upstream behaviour

@@ -133,3 +133,20 @@ variable "vpc_access" {
     error_message = "vpc_access.egress must be \"ALL_TRAFFIC\" or \"PRIVATE_RANGES_ONLY\"."
   }
 }
+
+variable "universe_domain" {
+  description = "Google Cloud universe the collectors talk to, for Trusted Partner Cloud deployments such as Cloud de Confiance by S3NS (`s3nsapis.fr`). Set the same value on the google provider in your root module. Defaults to null, the public `googleapis.com` universe."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.universe_domain == null ? true : can(regex("^[a-z0-9.-]+\\.[a-z]{2,}$", var.universe_domain))
+    error_message = "universe_domain must be a bare domain such as s3nsapis.fr, without a scheme or trailing slash."
+  }
+}
+
+variable "otel_collector_image" {
+  description = "Container image for the OTel collectors. Override to pull from a registry reachable from your universe. Must be 0.155.0 or later when `universe_domain` is set."
+  type        = string
+  default     = "otel/opentelemetry-collector-contrib:0.161.0"
+}
