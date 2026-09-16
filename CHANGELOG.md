@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-09-16
+
 ### Fixed
 
 - Secret Manager secrets use automatic replication when `universe_domain` is set, instead of a
