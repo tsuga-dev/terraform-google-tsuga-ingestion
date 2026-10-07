@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- One metric type failing in Cloud Monitoring no longer stops metric collection for the whole
+  project. `googlecloudmonitoringreceiver` discards its entire scrape when any single
+  `ListTimeSeries` call errors, so a `NotFound` on one type silently blanked every prefix. The
+  collector now runs one receiver per metric prefix (`googlecloudmonitoring/<prefix>`), so a
+  failure only affects that prefix. The collected metrics and API call volume are unchanged.
+
 ## [3.1.1] - 2026-09-16
 
 ### Fixed

@@ -18,82 +18,16 @@ receivers:
 %{ endif ~}
 %{ endif ~}
 %{ if enable_metrics ~}
-  googlecloudmonitoring:
+%{ for name, prefix in metric_prefixes ~}
+  googlecloudmonitoring/${name}:
     project_id: ${project_id}
     collection_interval: ${collection_interval}
 %{ if universe_domain != "" ~}
     universe_domain: ${universe_domain}
 %{ endif ~}
     metrics_list:
-      # Compute
-      - metric_descriptor_filter: 'metric.type = starts_with("compute.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("container.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("autoscaler.googleapis.com/")'
-      # Serverless Compute
-      - metric_descriptor_filter: 'metric.type = starts_with("run.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("cloudfunctions.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("appengine.googleapis.com/")'
-      # Messaging
-      - metric_descriptor_filter: 'metric.type = starts_with("pubsub.googleapis.com/")'
-      # Data Warehouse & Analytics
-      - metric_descriptor_filter: 'metric.type = starts_with("bigquery.googleapis.com/")'
-      # Databases
-      - metric_descriptor_filter: 'metric.type = starts_with("cloudsql.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("redis.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("bigtable.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("firestore.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("spanner.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("alloydb.googleapis.com/")'
-      # Storage
-      - metric_descriptor_filter: 'metric.type = starts_with("storage.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("filestore.googleapis.com/")'
-      # Networking
-      - metric_descriptor_filter: 'metric.type = starts_with("loadbalancing.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("networkservices.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("networksecurity.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("dns.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("vpn.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("router.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("interconnect.googleapis.com/")'
-      # AI / ML
-      - metric_descriptor_filter: 'metric.type = starts_with("aiplatform.googleapis.com/")'
-      # Orchestration
-      - metric_descriptor_filter: 'metric.type = starts_with("composer.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("cloudtasks.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("cloudscheduler.googleapis.com/")'
-      # Firebase
-      - metric_descriptor_filter: 'metric.type = starts_with("firebaseappcheck.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("firebasedatabase.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("firebasehosting.googleapis.com/")'
-      # Custom & User-defined Metrics
-      - metric_descriptor_filter: 'metric.type = starts_with("custom.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("external.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("logging.googleapis.com/user/")'
-      # GKE / Kubernetes
-      - metric_descriptor_filter: 'metric.type = starts_with("kubernetes.io/")'
-      # CI/CD & Artifact Management
-      - metric_descriptor_filter: 'metric.type = starts_with("cloudbuild.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("artifactregistry.googleapis.com/")'
-      # Data Processing
-      - metric_descriptor_filter: 'metric.type = starts_with("dataflow.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("dataproc.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("datastream.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("bigquerystorage.googleapis.com/")'
-      # Additional Storage & Databases
-      - metric_descriptor_filter: 'metric.type = starts_with("memcache.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("datastore.googleapis.com/")'
-      # Serverless & Orchestration
-      - metric_descriptor_filter: 'metric.type = starts_with("workflows.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("eventarc.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("batch.googleapis.com/")'
-      # Security & Identity
-      - metric_descriptor_filter: 'metric.type = starts_with("secretmanager.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("certificatemanager.googleapis.com/")'
-      # Platform & Quota
-      - metric_descriptor_filter: 'metric.type = starts_with("serviceruntime.googleapis.com/")'
-      - metric_descriptor_filter: 'metric.type = starts_with("monitoring.googleapis.com/")'
-      # TPU / Accelerators
-      - metric_descriptor_filter: 'metric.type = starts_with("tpu.googleapis.com/")'
+      - metric_descriptor_filter: 'metric.type = starts_with("${prefix}")'
+%{ endfor ~}
 %{ endif ~}
 
 processors:
@@ -139,7 +73,7 @@ service:
 %{ endif ~}
 %{ if enable_metrics ~}
     metrics:
-      receivers: [googlecloudmonitoring]
+      receivers: [${join(", ", [for name in keys(metric_prefixes) : "googlecloudmonitoring/${name}"])}]
       processors: [resource_detection%{ if length(resource_attributes) > 0 }, resource%{ endif }, batch]
       exporters: [otlp_http]
 %{ endif ~}
