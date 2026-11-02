@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.3] - 2026-11-02
+
 ### Changed
 
 - Upgraded the OTel collector image from `0.161.0` to `0.164.0`. One upstream behaviour change
