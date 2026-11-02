@@ -158,5 +158,5 @@ variable "universe_domain" {
 variable "otel_collector_image" {
   description = "Container image for the OTel collectors. Override to pull from a registry reachable from your universe. Must be 0.155.0 or later when `universe_domain` is set."
   type        = string
-  default     = "otel/opentelemetry-collector-contrib:0.161.0"
+  default     = "otel/opentelemetry-collector-contrib:0.164.0"
 }

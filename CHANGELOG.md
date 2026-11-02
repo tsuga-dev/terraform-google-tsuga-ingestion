@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgraded the OTel collector image from `0.161.0` to `0.164.0`. One upstream behaviour change
+  comes with it: `google_cloud_logentry_encoding` now sets `host.id` on Cloud DNS query logs as a
+  string taken from `vmInstanceIdString`, instead of an int taken from `vmInstanceId`
+  ([#51552](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/51552)). It also stops dropping log entries with an unparseable
+  `httpRequest.requestUrl`, `trace` or `spanId` ([#52044](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/52044), [#51666](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/51666)).
+
 ## [3.1.2] - 2026-10-07
 
 ### Fixed
