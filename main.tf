@@ -28,6 +28,7 @@ locals {
     "loadbalancing.googleapis.com/",
     "networkservices.googleapis.com/",
     "networksecurity.googleapis.com/",
+    "networking.googleapis.com/",
     "dns.googleapis.com/",
     "vpn.googleapis.com/",
     "router.googleapis.com/",
